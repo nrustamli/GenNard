@@ -1,0 +1,19 @@
+{
+  "name": "gennard",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "shared"
+  ],
+  "scripts": {
+    "dev:client": "npm -w packages/client run dev",
+    "dev:server": "npm -w packages/server run dev",
+    "build": "npm -w packages/game-engine run build && npm -w packages/server run build && npm -w packages/client run build",
+    "test": "npm -w @gennard/game-engine run test",
+    "test:watch": "npm -w @gennard/game-engine run test:watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  }
+}
