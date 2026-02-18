@@ -1,0 +1,10 @@
+node_modules
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+packages/client
+packages/server/generated
+packages/server/.env
+.env
+.git
+.claude

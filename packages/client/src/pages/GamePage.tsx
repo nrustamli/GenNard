@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { createNewGame, gameReducer, getLegalMoves } from '@gennard/game-engine';
-import type { GameState } from '@gennard/game-engine';
+import type { GameState, Move } from '@gennard/game-engine';
 import { BoardScene } from '../components/three/BoardScene';
 import { useTextureLoader } from '../hooks/useTextureLoader';
 
@@ -52,7 +52,7 @@ export function GamePage() {
     if (gameState.phase !== 'moving') return;
     if (player !== gameState.currentPlayer) return;
 
-    const hasLegalMove = legalMoves.some(m => m.from === point);
+    const hasLegalMove = legalMoves.some((m: Move) => m.from === point);
     if (!hasLegalMove) return;
 
     setSelectedChecker({ point, player });
@@ -63,7 +63,7 @@ export function GamePage() {
     if (!highlightedPoints.has(index)) return;
 
     const move = legalMoves.find(
-      m => m.from === selectedChecker.point && m.to === index,
+      (m: Move) => m.from === selectedChecker.point && m.to === index,
     );
     if (!move) return;
 
@@ -194,7 +194,7 @@ export function GamePage() {
               padding: '10px 24px',
               fontSize: 16,
               fontWeight: 'bold',
-              background: theme.colors.accentColor,
+              background: '#e63946',
               color: 'white',
               border: 'none',
               borderRadius: 8,
