@@ -1,13 +1,17 @@
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import { ThemeOrchestrator } from '../services/ThemeOrchestrator.js';
+import type { ThemeGenerationResponse, StyleMode } from '../../../../shared/themeTypes.js';
+
+interface IOrchestrator {
+  generate(prompt: string, styleMode: StyleMode): Promise<ThemeGenerationResponse>;
+}
 
 const ThemeRequestSchema = z.object({
   prompt: z.string().min(1).max(200),
   styleMode: z.enum(['classic', 'creative']),
 });
 
-export function createThemeRoutes(orchestrator: ThemeOrchestrator): Router {
+export function createThemeRoutes(orchestrator: IOrchestrator): Router {
   const router = Router();
 
   router.post('/generate-theme', async (req: Request, res: Response) => {

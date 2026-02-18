@@ -1,29 +1,36 @@
 import 'dotenv/config';
 import express from 'express';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { ThemeOrchestrator } from './services/ThemeOrchestrator.js';
+import { HuggingFaceOrchestrator } from './services/HuggingFaceOrchestrator.js';
 import { createThemeRoutes } from './routes/themeRoutes.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 4000;
-
-const apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-  console.error('GEMINI_API_KEY environment variable is required');
-  process.exit(1);
-}
+const provider = process.env.THEME_PROVIDER ?? 'gemini'; // 'gemini' | 'huggingface'
 
 const app = express();
-
-// JSON body parser
 app.use(express.json());
 
-// Static file serving for cached generated images
-app.use('/api/generated', express.static(join(__dirname, '../generated')));
+// Pick orchestrator based on THEME_PROVIDER env var
+let orchestrator: ThemeOrchestrator | HuggingFaceOrchestrator;
 
-// Theme routes
-const orchestrator = new ThemeOrchestrator(apiKey);
+if (provider === 'huggingface') {
+  const token = process.env.HF_TOKEN;
+  if (!token) {
+    console.error('HF_TOKEN is required when THEME_PROVIDER=huggingface');
+    process.exit(1);
+  }
+  console.log('Theme provider: HuggingFace (open-source models)');
+  orchestrator = new HuggingFaceOrchestrator(token);
+} else {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error('GEMINI_API_KEY is required when THEME_PROVIDER=gemini (default)');
+    process.exit(1);
+  }
+  console.log('Theme provider: Google Gemini');
+  orchestrator = new ThemeOrchestrator(apiKey);
+}
+
 app.use('/api', createThemeRoutes(orchestrator));
 
 // Health check

@@ -1,23 +1,41 @@
-import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { GoogleGenAI, Modality } from '@google/genai';
 import type { ThemeGenerationResponse, StyleMode } from '../../../../shared/themeTypes.js';
 import { LlmService } from './LlmService.js';
-import { ImageService } from './ImageService.js';
 import {
   getCacheKey,
   getCachedTheme,
   saveThemeToCache,
-  ensureCacheDir,
-  getImageUrl,
 } from '../utils/imageCache.js';
+
+async function generateImageDataUrl(ai: GoogleGenAI, prompt: string): Promise<string> {
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.0-flash-exp',
+    contents: prompt,
+    config: {
+      responseModalities: [Modality.IMAGE],
+    },
+  });
+
+  const parts = response.candidates?.[0]?.content?.parts;
+  if (!parts) throw new Error('No content parts in image response');
+
+  for (const part of parts) {
+    if (part.inlineData?.data) {
+      const mime = part.inlineData.mimeType ?? 'image/png';
+      return `data:${mime};base64,${part.inlineData.data}`;
+    }
+  }
+
+  throw new Error('No image data found in Gemini response');
+}
 
 export class ThemeOrchestrator {
   private llm: LlmService;
-  private imageService: ImageService;
+  private ai: GoogleGenAI;
 
   constructor(apiKey: string) {
     this.llm = new LlmService(apiKey);
-    this.imageService = new ImageService(apiKey);
+    this.ai = new GoogleGenAI({ apiKey });
   }
 
   async generate(prompt: string, styleMode: StyleMode): Promise<ThemeGenerationResponse> {
@@ -35,31 +53,25 @@ export class ThemeOrchestrator {
     // 2. LLM call to interpret the prompt
     const llmResult = await this.llm.interpretPrompt(prompt, styleMode);
 
-    // 3. Generate all 3 images in parallel
-    const [checker1, checker2, board] = await Promise.all([
-      this.imageService.generateImage(llmResult.imagePrompts.checker1),
-      this.imageService.generateImage(llmResult.imagePrompts.checker2),
-      this.imageService.generateImage(llmResult.imagePrompts.board),
+    // 3. Generate all 3 images in parallel, return as data URLs
+    const [checker1Url, checker2Url, boardUrl] = await Promise.all([
+      generateImageDataUrl(this.ai, llmResult.imagePrompts.checker1),
+      generateImageDataUrl(this.ai, llmResult.imagePrompts.checker2),
+      generateImageDataUrl(this.ai, llmResult.imagePrompts.board),
     ]);
 
-    // 4. Save images to disk
-    const dir = ensureCacheDir(cacheKey);
-    writeFileSync(join(dir, 'checker1.png'), checker1.data);
-    writeFileSync(join(dir, 'checker2.png'), checker2.data);
-    writeFileSync(join(dir, 'board.png'), board.data);
-
-    // 5. Build response
+    // 4. Build response
     const response: ThemeGenerationResponse = {
       player1: {
         themeName: llmResult.player1Theme,
-        checkerImageUrl: getImageUrl(cacheKey, 'checker1.png'),
+        checkerImageUrl: checker1Url,
       },
       player2: {
         themeName: llmResult.player2Theme,
-        checkerImageUrl: getImageUrl(cacheKey, 'checker2.png'),
+        checkerImageUrl: checker2Url,
       },
       board: {
-        textureUrl: getImageUrl(cacheKey, 'board.png'),
+        textureUrl: boardUrl,
       },
       colors: llmResult.colors,
       metadata: {
@@ -69,7 +81,7 @@ export class ThemeOrchestrator {
       },
     };
 
-    // 6. Cache the JSON response
+    // 5. Cache the JSON response (data URLs are self-contained)
     saveThemeToCache(cacheKey, response);
     console.log(`Theme saved to cache [${cacheKey}]`);
 

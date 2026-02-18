@@ -22,26 +22,23 @@ describe('Board', () => {
       expect(blackTotal).toBe(15);
     });
 
-    it('has correct standard positions', () => {
+    it('has correct Nardi starting positions', () => {
       const board = createInitialBoard();
-      // White: 5 on pt6(idx5), 3 on pt8(idx7), 5 on pt13(idx12), 2 on pt24(idx23)
-      expect(board[5]).toBe(5);
-      expect(board[7]).toBe(3);
-      expect(board[12]).toBe(5);
-      expect(board[23]).toBe(2);
-
-      // Black: 2 on pt1(idx0), 5 on pt12(idx11), 3 on pt17(idx16), 5 on pt19(idx18)
-      expect(board[0]).toBe(-2);
-      expect(board[11]).toBe(-5);
-      expect(board[16]).toBe(-3);
-      expect(board[18]).toBe(-5);
+      // White: 15 on pt24(idx23)
+      expect(board[23]).toBe(15);
+      // Black: 15 on pt1(idx0)
+      expect(board[0]).toBe(-15);
+      // All other points empty
+      for (let i = 1; i < 23; i++) {
+        expect(board[i]).toBe(0);
+      }
     });
   });
 
   describe('getPointOwner', () => {
     it('returns correct owner', () => {
       const board = createInitialBoard();
-      expect(getPointOwner(board, 5)).toBe('white');
+      expect(getPointOwner(board, 23)).toBe('white');
       expect(getPointOwner(board, 0)).toBe('black');
       expect(getPointOwner(board, 1)).toBe(null);
     });
@@ -50,8 +47,8 @@ describe('Board', () => {
   describe('getCheckerCount', () => {
     it('returns absolute count', () => {
       const board = createInitialBoard();
-      expect(getCheckerCount(board, 5)).toBe(5);
-      expect(getCheckerCount(board, 0)).toBe(2);
+      expect(getCheckerCount(board, 23)).toBe(15);
+      expect(getCheckerCount(board, 0)).toBe(15);
       expect(getCheckerCount(board, 1)).toBe(0);
     });
   });
@@ -69,7 +66,7 @@ describe('Board', () => {
         dieUsed: 1,
       });
 
-      expect(result.points[23]).toBe(1); // was 2, now 1
+      expect(result.points[23]).toBe(14); // was 15, now 14
       expect(result.points[22]).toBe(1); // was 0, now 1
       expect(result.hit).toBe(false);
     });
@@ -86,13 +83,14 @@ describe('Board', () => {
         dieUsed: 2,
       });
 
-      expect(result.points[0]).toBe(-1); // was -2, now -1
+      expect(result.points[0]).toBe(-14); // was -15, now -14
       expect(result.points[2]).toBe(-1); // was 0, now -1
       expect(result.hit).toBe(false);
     });
 
     it('hits an opponent blot', () => {
-      const board = createInitialBoard();
+      const board = new Array(24).fill(0);
+      board[23] = 2;  // White on pt24
       board[22] = -1; // Place a single black checker on pt23(idx22)
       const bar = createEmptyBar();
       const borneOff = createEmptyBorneOff();
@@ -189,12 +187,12 @@ describe('Board', () => {
   });
 
   describe('calculatePipCount', () => {
-    it('calculates 167 for each player at initial position', () => {
+    it('calculates 360 for each player at initial position', () => {
       const board = createInitialBoard();
       const bar = createEmptyBar();
-      // Standard backgammon starting pip count is 167
-      expect(calculatePipCount(board, bar, 'white')).toBe(167);
-      expect(calculatePipCount(board, bar, 'black')).toBe(167);
+      // Nardi starting pip count: 15 checkers * 24 distance = 360
+      expect(calculatePipCount(board, bar, 'white')).toBe(360);
+      expect(calculatePipCount(board, bar, 'black')).toBe(360);
     });
 
     it('adds 25 pips per bar checker', () => {

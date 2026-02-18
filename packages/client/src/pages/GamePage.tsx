@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
-import { createNewGame, applyDiceRoll, gameReducer, getLegalMoves } from '@gennard/game-engine';
-import type { GameState, Move } from '@gennard/game-engine';
+import { createNewGame, gameReducer, getLegalMoves } from '@gennard/game-engine';
+import type { GameState } from '@gennard/game-engine';
 import { BoardScene } from '../components/three/BoardScene';
+import { useTextureLoader } from '../hooks/useTextureLoader';
 
 export function GamePage() {
   const [gameState, setGameState] = useState<GameState>(() => createNewGame('demo'));
+  const theme = useTextureLoader();
 
   const [selectedChecker, setSelectedChecker] = useState<{
     point: number | 'bar';
@@ -50,7 +52,6 @@ export function GamePage() {
     if (gameState.phase !== 'moving') return;
     if (player !== gameState.currentPlayer) return;
 
-    // Check if this checker has any legal moves
     const hasLegalMove = legalMoves.some(m => m.from === point);
     if (!hasLegalMove) return;
 
@@ -61,7 +62,6 @@ export function GamePage() {
     if (!selectedChecker) return;
     if (!highlightedPoints.has(index)) return;
 
-    // Find the matching move
     const move = legalMoves.find(
       m => m.from === selectedChecker.point && m.to === index,
     );
@@ -80,11 +80,78 @@ export function GamePage() {
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       <BoardScene
         gameState={gameState}
+        theme={theme}
         highlightedPoints={highlightedPoints}
         selectedChecker={selectedChecker}
         onPointClick={handlePointClick}
         onCheckerClick={handleCheckerClick}
       />
+
+      {/* White borne-off (left) */}
+      {gameState.borneOff.white > 0 && (
+        <div style={{
+          position: 'absolute',
+          left: 16,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 3,
+        }}>
+          {Array.from({ length: gameState.borneOff.white }, (_, i) => (
+            <div key={i} style={{
+              width: 22,
+              height: 22,
+              borderRadius: '50%',
+              background: theme.colors.player1Accent,
+              border: '1.5px solid #aaa',
+            }} />
+          ))}
+        </div>
+      )}
+
+      {/* Black borne-off (right) */}
+      {gameState.borneOff.black > 0 && (
+        <div style={{
+          position: 'absolute',
+          right: 16,
+          top: '50%',
+          transform: 'translateY(-50%)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 3,
+        }}>
+          {Array.from({ length: gameState.borneOff.black }, (_, i) => (
+            <div key={i} style={{
+              width: 22,
+              height: 22,
+              borderRadius: '50%',
+              background: theme.colors.player2Accent,
+              border: '1.5px solid #666',
+            }} />
+          ))}
+        </div>
+      )}
+
+      {/* Theme info */}
+      {theme.player1Name !== 'White' && (
+        <div style={{
+          position: 'absolute',
+          top: 20,
+          right: 20,
+          padding: '8px 14px',
+          background: 'rgba(255,255,255,0.85)',
+          borderRadius: 8,
+          fontSize: 14,
+          color: '#333',
+        }}>
+          <span style={{ color: theme.colors.player1Accent }}>{theme.player1Name}</span>
+          {' vs '}
+          <span style={{ color: theme.colors.player2Accent }}>{theme.player2Name}</span>
+        </div>
+      )}
 
       {/* UI Overlay */}
       <div style={{
@@ -99,21 +166,24 @@ export function GamePage() {
         {/* Current player indicator */}
         <div style={{
           padding: '8px 16px',
-          background: 'rgba(0,0,0,0.7)',
+          background: 'rgba(255,255,255,0.85)',
           borderRadius: 8,
           fontSize: 14,
+          color: '#333',
         }}>
           <span style={{
             display: 'inline-block',
             width: 12,
             height: 12,
             borderRadius: '50%',
-            background: gameState.currentPlayer === 'white' ? '#f5f5dc' : '#1a1a1a',
+            background: gameState.currentPlayer === 'white'
+              ? theme.colors.player1Accent
+              : theme.colors.player2Accent,
             border: '1px solid #666',
             marginRight: 8,
             verticalAlign: 'middle',
           }} />
-          {gameState.currentPlayer === 'white' ? 'White' : 'Black'}'s turn
+          {gameState.currentPlayer === 'white' ? theme.player1Name : theme.player2Name}'s turn
         </div>
 
         {/* Roll dice button */}
@@ -124,7 +194,7 @@ export function GamePage() {
               padding: '10px 24px',
               fontSize: 16,
               fontWeight: 'bold',
-              background: '#D2691E',
+              background: theme.colors.accentColor,
               color: 'white',
               border: 'none',
               borderRadius: 8,
@@ -139,12 +209,13 @@ export function GamePage() {
         {gameState.dice.roll && (
           <div style={{
             padding: '8px 16px',
-            background: 'rgba(0,0,0,0.7)',
+            background: 'rgba(255,255,255,0.85)',
             borderRadius: 8,
             fontSize: 18,
             fontWeight: 'bold',
+            color: '#333',
           }}>
-            🎲 {gameState.dice.roll.die1} - {gameState.dice.roll.die2}
+            {gameState.dice.roll.die1} - {gameState.dice.roll.die2}
             {gameState.dice.movesRemaining.length > 0 && (
               <span style={{ fontSize: 12, marginLeft: 8, opacity: 0.7 }}>
                 ({gameState.dice.movesRemaining.join(', ')} left)
@@ -157,13 +228,13 @@ export function GamePage() {
         {gameState.phase === 'game_over' && (
           <div style={{
             padding: '10px 24px',
-            background: 'rgba(0,0,0,0.8)',
+            background: 'rgba(255,255,255,0.9)',
             borderRadius: 8,
             fontSize: 18,
             fontWeight: 'bold',
-            color: '#ffd700',
+            color: '#694934',
           }}>
-            {gameState.winner === 'white' ? 'White' : 'Black'} wins!
+            {gameState.winner === 'white' ? theme.player1Name : theme.player2Name} wins!
             {gameState.winType !== 'normal' && ` (${gameState.winType})`}
           </div>
         )}
@@ -177,10 +248,10 @@ export function GamePage() {
           left: '50%',
           transform: 'translateX(-50%)',
           padding: '6px 14px',
-          background: 'rgba(0,0,0,0.6)',
+          background: 'rgba(255,255,255,0.85)',
           borderRadius: 6,
           fontSize: 13,
-          opacity: 0.8,
+          color: '#555',
         }}>
           {selectedChecker
             ? 'Click a highlighted point to move'

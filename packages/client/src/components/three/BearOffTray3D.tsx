@@ -7,6 +7,7 @@ interface BearOffTray3DProps {
   blackCount: number;
   whiteColor?: string;
   blackColor?: string;
+  trayColor?: string;
 }
 
 export function BearOffTray3D({
@@ -14,6 +15,7 @@ export function BearOffTray3D({
   blackCount,
   whiteColor = '#f5f5dc',
   blackColor = '#1a1a1a',
+  trayColor = '#3d2211',
 }: BearOffTray3DProps) {
   const checkers: ReactNode[] = [];
 
@@ -44,7 +46,7 @@ export function BearOffTray3D({
       {/* Tray surface */}
       <mesh position={[BOARD_WIDTH / 2 + 0.8, -0.05, 0]}>
         <boxGeometry args={[1.2, BOARD_HEIGHT * 0.5, BOARD_DEPTH]} />
-        <meshStandardMaterial color="#3d2211" roughness={0.8} />
+        <meshStandardMaterial color={trayColor} roughness={0.8} />
       </mesh>
       {checkers}
     </group>

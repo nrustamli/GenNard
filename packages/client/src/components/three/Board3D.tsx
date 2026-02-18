@@ -1,10 +1,13 @@
-import { BOARD_WIDTH, BOARD_DEPTH, BOARD_HEIGHT } from '../../utils/boardCoordinates';
+import type { Texture } from 'three';
+import { BOARD_WIDTH, BOARD_DEPTH, BOARD_HEIGHT, BAR_WIDTH } from '../../utils/boardCoordinates';
 
 interface Board3DProps {
   colors?: {
     boardFrame: string;
     boardSurface: string;
+    barColor?: string;
   };
+  boardTexture?: Texture | null;
 }
 
 const DEFAULT_COLORS = {
@@ -12,7 +15,7 @@ const DEFAULT_COLORS = {
   boardSurface: '#2d1810',
 };
 
-export function Board3D({ colors = DEFAULT_COLORS }: Board3DProps) {
+export function Board3D({ colors = DEFAULT_COLORS, boardTexture }: Board3DProps) {
   const frameThickness = 0.4;
   const frameHeight = BOARD_HEIGHT + 0.1;
 
@@ -21,7 +24,11 @@ export function Board3D({ colors = DEFAULT_COLORS }: Board3DProps) {
       {/* Board playing surface */}
       <mesh position={[0, 0, 0]} receiveShadow>
         <boxGeometry args={[BOARD_WIDTH, BOARD_HEIGHT, BOARD_DEPTH]} />
-        <meshStandardMaterial color={colors.boardSurface} roughness={0.8} />
+        <meshStandardMaterial
+          color={boardTexture ? '#ffffff' : colors.boardSurface}
+          map={boardTexture ?? undefined}
+          roughness={0.8}
+        />
       </mesh>
 
       {/* Frame - top */}
@@ -50,8 +57,8 @@ export function Board3D({ colors = DEFAULT_COLORS }: Board3DProps) {
 
       {/* Center bar */}
       <mesh position={[0, frameHeight / 2 - BOARD_HEIGHT / 2, 0]}>
-        <boxGeometry args={[0.5, frameHeight, BOARD_DEPTH]} />
-        <meshStandardMaterial color={colors.boardFrame} roughness={0.6} />
+        <boxGeometry args={[BAR_WIDTH, frameHeight, BOARD_DEPTH]} />
+        <meshStandardMaterial color={colors.barColor ?? colors.boardFrame} roughness={0.6} />
       </mesh>
     </group>
   );

@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import type { Mesh } from 'three';
-import { Text } from '@react-three/drei';
+import { RoundedBox } from '@react-three/drei';
 
 interface Dice3DProps {
   die1: number | null;
@@ -23,11 +23,10 @@ function DiceCube({ value, position }: { value: number; position: [number, numbe
 
   return (
     <group position={position}>
-      {/* Dice body */}
-      <mesh ref={meshRef} castShadow>
-        <boxGeometry args={[size, size, size]} />
-        <meshStandardMaterial color="#f5f0e8" roughness={0.3} />
-      </mesh>
+      {/* Dice body — rounded corners */}
+      <RoundedBox ref={meshRef} args={[size, size, size]} radius={0.08} smoothness={4} castShadow>
+        <meshStandardMaterial color="#cc2222" roughness={0.4} />
+      </RoundedBox>
 
       {/* Pips on top face */}
       {PIP_POSITIONS[value]?.map((pos, i) => (
@@ -37,14 +36,14 @@ function DiceCube({ value, position }: { value: number; position: [number, numbe
           rotation={[-Math.PI / 2, 0, 0]}
         >
           <circleGeometry args={[0.04, 16]} />
-          <meshStandardMaterial color="#1a1a1a" />
+          <meshStandardMaterial color="#ffffff" />
         </mesh>
       ))}
     </group>
   );
 }
 
-export function Dice3D({ die1, die2, position = [0, 0.5, 0] }: Dice3DProps) {
+export function Dice3D({ die1, die2, position = [0, 0.4, -6] }: Dice3DProps) {
   if (die1 === null || die2 === null) return null;
 
   return (

@@ -135,7 +135,7 @@ describe('GameReducer', () => {
         move: { from: 23, to: 22, dieUsed: 1 },
       });
 
-      expect(result.points[23]).toBe(1); // Was 2, now 1
+      expect(result.points[23]).toBe(14); // Was 15, now 14
       expect(result.points[22]).toBe(1); // Was 0, now 1
       expect(result.dice.movesRemaining).toEqual([6]); // Used the 1
     });

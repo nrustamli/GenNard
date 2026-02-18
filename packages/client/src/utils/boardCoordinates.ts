@@ -10,8 +10,8 @@
  * Black home board: indices 18-23 (right side, top row)
  */
 
-export const BOARD_WIDTH = 14;
-export const BOARD_DEPTH = 8;
+export const BOARD_WIDTH = 12.5;
+export const BOARD_DEPTH = 10;
 export const BOARD_HEIGHT = 0.3;
 
 export const POINT_WIDTH = 0.9;
@@ -20,18 +20,20 @@ export const CHECKER_HEIGHT = 0.1;
 export const BAR_WIDTH = 0.6;
 
 // X positions for the 12 points on each row (left to right)
-// 6 points | BAR | 6 points
+// 6 points | BAR | 6 points — symmetric around x=0
 function getPointXPositions(): number[] {
   const positions: number[] = [];
-  const startX = -BOARD_WIDTH / 2 + 0.6;
+  const barHalf = BAR_WIDTH / 2;
+  const gap = 0.2; // gap between bar edge and nearest point edge
+  const firstCenter = barHalf + gap + POINT_WIDTH / 2;
 
-  for (let i = 0; i < 6; i++) {
-    positions.push(startX + i * POINT_WIDTH);
+  // Left 6 points (negative x, far left first)
+  for (let i = 5; i >= 0; i--) {
+    positions.push(-(firstCenter + i * POINT_WIDTH));
   }
-  // Skip the bar gap
-  const rightStart = BAR_WIDTH / 2 + 0.15;
+  // Right 6 points (positive x, near bar first)
   for (let i = 0; i < 6; i++) {
-    positions.push(rightStart + i * POINT_WIDTH);
+    positions.push(firstCenter + i * POINT_WIDTH);
   }
 
   return positions;
@@ -70,16 +72,24 @@ export function getPointPosition(index: number): PointPosition {
 
 /**
  * Get the 3D position for a checker on a given point, at a given stack position.
+ * When totalOnPoint is large, spacing compresses so checkers fit within the triangle.
  */
 export function getCheckerPosition(
   pointIndex: number,
   stackIndex: number,
+  totalOnPoint: number = 5,
 ): { x: number; y: number; z: number } {
   const point = getPointPosition(pointIndex);
   const y = BOARD_HEIGHT / 2 + CHECKER_HEIGHT / 2 + stackIndex * CHECKER_HEIGHT;
 
-  // Stack checkers from the edge toward the center
-  const stackOffset = stackIndex * CHECKER_RADIUS * 1.8;
+  // Adaptive spacing: compress when many checkers on one point
+  const maxStackDistance = BOARD_DEPTH / 2 - 1.6;
+  const normalSpacing = CHECKER_RADIUS * 1.8;
+  const spacing = totalOnPoint > 1
+    ? Math.min(normalSpacing, maxStackDistance / (totalOnPoint - 1))
+    : 0;
+  const stackOffset = stackIndex * spacing;
+
   const z = point.direction === 'up'
     ? point.z - stackOffset
     : point.z + stackOffset;
@@ -120,7 +130,7 @@ export function getBearOffPosition(
 export function getTriangleVertices(index: number): [number, number, number][] {
   const point = getPointPosition(index);
   const halfWidth = POINT_WIDTH / 2 - 0.05;
-  const length = BOARD_DEPTH / 2 - 0.8;
+  const length = BOARD_DEPTH / 2 - 1.5;
   const y = BOARD_HEIGHT / 2 + 0.001; // Slightly above board
 
   if (point.direction === 'down') {
