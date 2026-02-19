@@ -77,24 +77,10 @@ export function getPointPosition(index: number): PointPosition {
 export function getCheckerPosition(
   pointIndex: number,
   stackIndex: number,
-  totalOnPoint: number = 5,
 ): { x: number; y: number; z: number } {
   const point = getPointPosition(pointIndex);
-  const y = BOARD_HEIGHT / 2 + CHECKER_HEIGHT / 2;
-
-  // Adaptive spacing: compress when many checkers on one point
-  const maxStackDistance = BOARD_DEPTH / 2 - 1.6;
-  const normalSpacing = CHECKER_RADIUS * 1.8;
-  const spacing = totalOnPoint > 1
-    ? Math.min(normalSpacing, maxStackDistance / (totalOnPoint - 1))
-    : 0;
-  const stackOffset = stackIndex * spacing;
-
-  const z = point.direction === 'up'
-    ? point.z - stackOffset
-    : point.z + stackOffset;
-
-  return { x: point.x, y, z };
+  const y = BOARD_HEIGHT / 2 + CHECKER_HEIGHT / 2 + stackIndex * CHECKER_HEIGHT;
+  return { x: point.x, y, z: point.z };
 }
 
 /**

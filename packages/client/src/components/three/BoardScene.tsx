@@ -41,7 +41,7 @@ export function BoardScene({
     const texture = player === 'white' ? textures.checker1 : textures.checker2;
 
     for (let s = 0; s < count; s++) {
-      const pos = getCheckerPosition(i, s, count);
+      const pos = getCheckerPosition(i, s);
       const isSelected =
         selectedChecker?.point === i && selectedChecker?.player === player && s === count - 1;
 
