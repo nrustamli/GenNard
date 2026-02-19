@@ -1,11 +1,18 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { StyleMode } from '../../../../shared/themeTypes';
 import { useThemeStore } from '../store/themeStore';
 
-const BORDO = '#4c1130';
-const BLUE = '#11304c';
-const YELLOW = '#fdb73e';
+// ── Design tokens ─────────────────────────────────────────
+const FONT = '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+const RED = '#DC2626';             // Primary action
+const ORANGE = '#F97316';          // Play Now accent
+const TEXT = '#000000';
+const TEXT_SEC = '#555555';
+const LABEL = '#888888';
+const INPUT_BORDER = '#E0E0E0';
+const CARD_SHADOW = '0 6px 32px rgba(0,0,0,0.11), 0 2px 8px rgba(0,0,0,0.07)';
 
 export function LandingPage() {
   const [prompt, setPrompt] = useState('');
@@ -21,238 +28,290 @@ export function LandingPage() {
     await generate(prompt.trim(), styleMode);
   };
 
-  const handlePlay = () => {
-    navigate('/game');
-  };
-
-  const handleSkip = () => {
-    navigate('/game');
-  };
+  const handlePlay = () => navigate('/game');
+  const handleSkip = () => navigate('/game');
 
   const isLoading = status === 'loading';
   const isReady = status === 'ready' && response !== null;
+  const canGenerate = !!prompt.trim() && !isLoading;
+
+  const promptSummary = prompt.trim()
+    ? `Generate a ${styleMode} backgammon board theme inspired by "${prompt.trim()}". Design unique checker textures, board colors, and player names that evoke this theme.`
+    : 'Type a theme above — your full prompt will appear here.';
 
   return (
     <div style={{
       width: '100vw',
       height: '100vh',
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      background: '#eeeeee',
-      position: 'relative',
-      overflow: 'hidden',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      fontFamily: FONT,
+      overflow: 'auto',
+      padding: '32px 24px',
+      boxSizing: 'border-box',
+      /* White base with soft red/orange abstract blur */
+      background: `
+        radial-gradient(ellipse at 10% 18%, rgba(255, 100, 50, 0.22) 0%, transparent 44%),
+        radial-gradient(ellipse at 88% 80%, rgba(220, 38, 38, 0.18) 0%, transparent 44%),
+        radial-gradient(ellipse at 80% 10%, rgba(251, 146, 60, 0.16) 0%, transparent 40%),
+        radial-gradient(ellipse at 24% 85%, rgba(249, 115, 22, 0.13) 0%, transparent 38%),
+        #FFFFFF
+      `,
     }}>
-      {/* Aura gradient blobs */}
-      <div style={{
-        position: 'absolute',
-        top: '-20%',
-        left: '-10%',
-        width: 600,
-        height: 600,
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${BORDO}18 0%, transparent 70%)`,
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '-25%',
-        right: '-10%',
-        width: 700,
-        height: 700,
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${BLUE}18 0%, transparent 70%)`,
-        pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute',
-        top: '30%',
-        right: '15%',
-        width: 400,
-        height: 400,
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${YELLOW}20 0%, transparent 70%)`,
-        pointerEvents: 'none',
-      }} />
 
-      {/* Main layout: left menu + right previews */}
+      {/* ── Title ────────────────────────────────────────── */}
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <h1
+          onClick={() => window.location.reload()}
+          style={{
+            fontSize: 36,
+            fontWeight: 800,
+            color: TEXT,
+            margin: 0,
+            letterSpacing: '-0.5px',
+            cursor: 'pointer',
+            userSelect: 'none',
+          }}
+        >
+          GenNard
+        </h1>
+        <p style={{
+          fontSize: 15,
+          color: TEXT_SEC,
+          margin: '8px 0 0',
+        }}>
+          AI-powered backgammon theme generator
+        </p>
+      </div>
+
+      {/* ── Two-pane workspace ────────────────────────────── */}
       <div style={{
         display: 'flex',
-        gap: 48,
-        alignItems: 'center',
-        position: 'relative',
+        gap: 20,
+        alignItems: 'flex-start',
+        width: '100%',
+        maxWidth: 920,
       }}>
-        {/* Left — menu */}
+
+        {/* ── Left card: Designer ─────────────────────────── */}
         <div style={{
+          flex: '0 0 400px',
+          background: '#FFFFFF',
+          borderRadius: 10,
+          boxShadow: CARD_SHADOW,
+          padding: '28px 24px',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          width: 360,
+          gap: 20,
         }}>
-          <h1 style={{
-            fontSize: 56,
-            fontWeight: 700,
-            color: BORDO,
-            marginBottom: 8,
-            letterSpacing: '-1px',
-          }}>
-            GenNard
-          </h1>
-          <p style={{
-            fontSize: 15,
-            color: BLUE,
-            opacity: 0.7,
-            marginBottom: 40,
-          }}>
-            AI-generated backgammon — type a theme and play
-          </p>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: TEXT, margin: 0 }}>
+            Designer
+          </h2>
 
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 14,
-            width: '100%',
-          }}>
+          {/* THEME */}
+          <Field label="THEME">
             <input
               type="text"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleGenerate()}
-              placeholder='Try "Sushi", "Space", "Pirates"...'
+              onKeyDown={(e) => e.key === 'Enter' && canGenerate && handleGenerate()}
+              placeholder='e.g. "Sushi", "Space", "Pirates"'
               maxLength={200}
               disabled={isLoading}
               style={{
-                padding: '14px 16px',
-                fontSize: 17,
-                borderRadius: 10,
-                border: `1.5px solid ${BLUE}22`,
-                background: '#ffffff',
-                color: BORDO,
+                width: '100%',
+                padding: '10px 12px',
+                fontSize: 14,
+                color: TEXT,
+                background: '#FAFAFA',
+                border: `1px solid ${INPUT_BORDER}`,
+                borderRadius: 4,
                 outline: 'none',
-                textAlign: 'center',
+                boxSizing: 'border-box',
+                fontFamily: FONT,
               }}
             />
+          </Field>
 
-            {/* Style mode toggle */}
+          {/* STYLE */}
+          <Field label="STYLE">
             <div style={{
               display: 'flex',
-              gap: 8,
-              justifyContent: 'center',
+              border: `1px solid ${INPUT_BORDER}`,
+              borderRadius: 4,
+              overflow: 'hidden',
             }}>
-              {(['classic', 'creative'] as const).map((mode) => (
+              {(['classic', 'creative'] as const).map((mode, i) => (
                 <button
                   key={mode}
                   onClick={() => setStyleMode(mode)}
                   disabled={isLoading}
                   style={{
-                    padding: '8px 22px',
-                    fontSize: 13,
-                    fontWeight: 600,
-                    borderRadius: 8,
-                    border: styleMode === mode ? 'none' : `1.5px solid ${BLUE}22`,
+                    flex: 1,
+                    padding: '10px',
+                    border: 'none',
+                    borderRight: i === 0 ? `1px solid ${INPUT_BORDER}` : 'none',
+                    background: styleMode === mode ? RED : 'transparent',
+                    color: styleMode === mode ? '#fff' : TEXT_SEC,
                     cursor: 'pointer',
-                    background: styleMode === mode ? BLUE : 'transparent',
-                    color: styleMode === mode ? '#fff' : BLUE,
-                    transition: 'all 0.2s',
+                    fontSize: 14,
+                    fontWeight: styleMode === mode ? 600 : 400,
+                    fontFamily: FONT,
+                    transition: 'all 0.15s',
                   }}
                 >
                   {mode.charAt(0).toUpperCase() + mode.slice(1)}
                 </button>
               ))}
             </div>
+          </Field>
 
-            {/* Generate button */}
-            <button
-              onClick={handleGenerate}
-              disabled={!prompt.trim() || isLoading}
+          {/* PROMPT summary */}
+          <Field label="PROMPT">
+            <textarea
+              readOnly
+              value={promptSummary}
+              rows={4}
               style={{
-                padding: '14px 24px',
-                fontSize: 17,
-                fontWeight: 700,
-                borderRadius: 10,
-                border: 'none',
-                cursor: prompt.trim() && !isLoading ? 'pointer' : 'not-allowed',
-                background: prompt.trim() && !isLoading
-                  ? `linear-gradient(135deg, ${BORDO}, ${BLUE})`
-                  : '#ccc',
-                color: '#fff',
-                transition: 'opacity 0.2s',
-              }}
-            >
-              {isLoading ? 'Generating...' : 'Generate'}
-            </button>
-
-            {/* Play button — appears after generation */}
-            {isReady && (
-              <button
-                onClick={handlePlay}
-                style={{
-                  padding: '14px 24px',
-                  fontSize: 17,
-                  fontWeight: 700,
-                  borderRadius: 10,
-                  border: 'none',
-                  cursor: 'pointer',
-                  background: YELLOW,
-                  color: BORDO,
-                  transition: 'opacity 0.2s',
-                }}
-              >
-                Play
-              </button>
-            )}
-
-            {/* Skip */}
-            <button
-              onClick={handleSkip}
-              disabled={isLoading}
-              style={{
-                padding: '10px',
+                width: '100%',
+                padding: '10px 12px',
                 fontSize: 13,
-                background: 'transparent',
-                border: `1.5px solid ${BLUE}22`,
-                borderRadius: 8,
-                color: BLUE,
-                opacity: 0.6,
+                color: prompt.trim() ? TEXT : LABEL,
+                background: '#FAFAFA',
+                border: `1px solid ${INPUT_BORDER}`,
+                borderRadius: 4,
+                resize: 'none',
+                boxSizing: 'border-box',
+                fontFamily: FONT,
+                lineHeight: 1.65,
+                outline: 'none',
+              }}
+            />
+          </Field>
+
+          {/* Spacer */}
+          <div style={{ flex: 1 }} />
+
+          {/* Generate button */}
+          <button
+            onClick={handleGenerate}
+            disabled={!canGenerate}
+            style={{
+              width: '100%',
+              padding: '13px',
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#fff',
+              background: canGenerate ? RED : '#C5CDD8',
+              border: 'none',
+              borderRadius: 4,
+              cursor: canGenerate ? 'pointer' : 'not-allowed',
+              fontFamily: FONT,
+              letterSpacing: '0.02em',
+              transition: 'background 0.2s',
+            }}
+          >
+            {isLoading ? 'Generating...' : 'Generate'}
+          </button>
+
+          {/* Play Now button — white with bold orange stroke */}
+          {isReady && (
+            <button
+              onClick={handlePlay}
+              style={{
+                width: '100%',
+                padding: '12px',
+                fontSize: 15,
+                fontWeight: 700,
+                color: ORANGE,
+                background: '#FFFFFF',
+                border: `2.5px solid ${ORANGE}`,
+                borderRadius: 4,
                 cursor: 'pointer',
+                fontFamily: FONT,
+                letterSpacing: '0.02em',
               }}
             >
-              Skip — play with default board
+              ▶ Play Now
             </button>
+          )}
 
-            {error && (
-              <p style={{ color: '#c0392b', textAlign: 'center', fontSize: 13 }}>
-                {error}
-              </p>
-            )}
-          </div>
+          {/* Skip */}
+          <button
+            onClick={handleSkip}
+            disabled={isLoading}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              fontSize: 13,
+              color: LABEL,
+              fontFamily: FONT,
+              textDecoration: 'underline',
+              padding: 0,
+              textAlign: 'center',
+            }}
+          >
+            Skip — play with default board
+          </button>
+
+          {error && (
+            <p style={{ color: '#EF4444', fontSize: 13, margin: 0, textAlign: 'center' }}>
+              {error}
+            </p>
+          )}
         </div>
 
-        {/* Right — preview boxes */}
+        {/* ── Right card: Preview ──────────────────────────── */}
         <div style={{
+          flex: 1,
+          background: '#FFFFFF',
+          borderRadius: 10,
+          boxShadow: CARD_SHADOW,
+          padding: '28px 24px',
           display: 'flex',
           flexDirection: 'column',
-          gap: 24,
-          width: 240,
+          gap: 16,
         }}>
-          {/* White checker preview */}
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: TEXT, margin: 0 }}>
+            Preview
+          </h2>
+
           <PreviewBox
-            label={isReady ? response.player1.themeName : 'White'}
+            label={isReady ? response.player1.themeName : 'Player 1'}
             imageUrl={isReady ? response.player1.checkerImageUrl : null}
             isLoading={isLoading}
-            borderColor={BLUE}
           />
-
-          {/* Black checker preview */}
           <PreviewBox
-            label={isReady ? response.player2.themeName : 'Black'}
+            label={isReady ? response.player2.themeName : 'Player 2'}
             imageUrl={isReady ? response.player2.checkerImageUrl : null}
             isLoading={isLoading}
-            borderColor={BLUE}
           />
         </div>
+
       </div>
+    </div>
+  );
+}
+
+// ── Sub-components ────────────────────────────────────────
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <label style={{
+        fontSize: 11,
+        fontWeight: 700,
+        color: '#888888',
+        letterSpacing: '0.10em',
+        textTransform: 'uppercase',
+        fontFamily: '"Inter", -apple-system, sans-serif',
+      }}>
+        {label}
+      </label>
+      {children}
     </div>
   );
 }
@@ -261,20 +320,17 @@ function PreviewBox({
   label,
   imageUrl,
   isLoading,
-  borderColor,
 }: {
   label: string;
   imageUrl: string | null;
   isLoading: boolean;
-  borderColor: string;
 }) {
   return (
     <div style={{
-      width: 240,
-      height: 200,
-      borderRadius: 12,
-      border: `1.5px solid ${borderColor}22`,
-      background: '#ffffff',
+      height: 148,
+      borderRadius: 6,
+      border: `1px solid #E0E0E0`,
+      background: '#FAFAFA',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -283,52 +339,45 @@ function PreviewBox({
       position: 'relative',
     }}>
       {imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={label}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-          }}
-        />
+        <>
+          <img
+            src={imageUrl}
+            alt={label}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            padding: '8px 12px',
+            textAlign: 'center',
+            fontSize: 13,
+            fontWeight: 700,
+            color: '#fff',
+            background: 'rgba(0,0,0,0.50)',
+            backdropFilter: 'blur(4px)',
+          }}>
+            {label}
+          </div>
+        </>
       ) : (
         <div style={{
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 8,
+          gap: 10,
           opacity: 0.4,
         }}>
-          {isLoading ? (
-            <span style={{ fontSize: 13, color: borderColor }}>Generating...</span>
-          ) : (
-            <>
-              <div style={{
-                width: 48,
-                height: 48,
-                borderRadius: '50%',
-                border: `2px dashed ${borderColor}44`,
-              }} />
-              <span style={{ fontSize: 13, color: borderColor }}>{label}</span>
-            </>
-          )}
-        </div>
-      )}
-      {imageUrl && (
-        <div style={{
-          position: 'absolute' as const,
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: '6px 0',
-          textAlign: 'center',
-          fontSize: 12,
-          fontWeight: 600,
-          color: '#fff',
-          background: 'rgba(0,0,0,0.45)',
-        }}>
-          {label}
+          <div style={{
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            border: '2px dashed #AAAAAA',
+          }} />
+          <span style={{ fontSize: 13, color: '#888', fontFamily: '"Inter", sans-serif' }}>
+            {isLoading ? 'Generating...' : label}
+          </span>
         </div>
       )}
     </div>
