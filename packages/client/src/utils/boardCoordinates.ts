@@ -72,15 +72,23 @@ export function getPointPosition(index: number): PointPosition {
 
 /**
  * Get the 3D position for a checker on a given point, at a given stack position.
- * When totalOnPoint is large, spacing compresses so checkers fit within the triangle.
+ * Checkers are laid out in rows of up to 5 along the triangle (z-axis), then
+ * a new y-layer starts. This avoids both the diagonal "ladder" and perspective lean.
  */
 export function getCheckerPosition(
   pointIndex: number,
   stackIndex: number,
 ): { x: number; y: number; z: number } {
   const point = getPointPosition(pointIndex);
-  const y = BOARD_HEIGHT / 2 + CHECKER_HEIGHT / 2 + stackIndex * CHECKER_HEIGHT;
-  return { x: point.x, y, z: point.z };
+  const MAX_PER_ROW = 5;
+  const col = stackIndex % MAX_PER_ROW;   // 0-4: position along triangle
+  const yLevel = Math.floor(stackIndex / MAX_PER_ROW); // 0,1,2: stacking layer
+  const spacing = CHECKER_RADIUS * 1.8;   // 0.72 — 5 checkers fit within triangle
+  const y = BOARD_HEIGHT / 2 + CHECKER_HEIGHT / 2 + yLevel * CHECKER_HEIGHT;
+  const z = point.direction === 'up'
+    ? point.z - col * spacing
+    : point.z + col * spacing;
+  return { x: point.x, y, z };
 }
 
 /**
