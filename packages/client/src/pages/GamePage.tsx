@@ -4,6 +4,7 @@ import { createNewGame, gameReducer, getLegalMoves } from '@gennard/game-engine'
 import type { GameState, Move } from '@gennard/game-engine';
 import { BoardScene } from '../components/three/BoardScene';
 import { useTextureLoader } from '../hooks/useTextureLoader';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const FONT = '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
 const TEXT = '#212121';
@@ -14,6 +15,7 @@ export function GamePage() {
   const [gameState, setGameState] = useState<GameState>(() => createNewGame('demo'));
   const theme = useTextureLoader();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const [selectedChecker, setSelectedChecker] = useState<{
     point: number | 'bar';
@@ -166,7 +168,7 @@ export function GamePage() {
       )}
 
       {/* ── Top right: theme badge ─────────────────────── */}
-      {theme.player1Name !== 'White' && (
+      {theme.player1Name !== 'White' && !isMobile && (
         <div style={{
           position: 'absolute',
           top: 16,
@@ -256,19 +258,21 @@ export function GamePage() {
       {/* ── Bottom floating control bar ────────────────── */}
       <div style={{
         position: 'absolute',
-        bottom: 24,
+        bottom: isMobile ? 16 : 24,
         left: '50%',
         transform: 'translateX(-50%)',
         display: 'flex',
         alignItems: 'center',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
         gap: 10,
-        padding: '10px 18px',
+        padding: isMobile ? '8px 14px' : '10px 18px',
         background: 'rgba(255,255,255,0.92)',
         backdropFilter: 'blur(12px)',
         borderRadius: 50,
         border: `1px solid ${BORDER}`,
         boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-        whiteSpace: 'nowrap',
+        maxWidth: isMobile ? 'calc(100vw - 32px)' : undefined,
       }}>
 
         {gameState.phase === 'game_over' ? (

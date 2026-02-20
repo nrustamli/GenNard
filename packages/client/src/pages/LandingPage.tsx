@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { StyleMode } from '../../../../shared/themeTypes';
 import { useThemeStore } from '../store/themeStore';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 // ── Design tokens ─────────────────────────────────────────
 const FONT = '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -31,6 +32,7 @@ export function LandingPage() {
   const handlePlay = () => navigate('/game');
   const handleSkip = () => navigate('/game');
 
+  const isMobile = useIsMobile();
   const isLoading = status === 'loading';
   const isReady = status === 'ready' && response !== null;
   const canGenerate = !!prompt.trim() && !isLoading;
@@ -42,14 +44,14 @@ export function LandingPage() {
   return (
     <div style={{
       width: '100vw',
-      height: '100vh',
+      minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: isMobile ? 'flex-start' : 'center',
       fontFamily: FONT,
       overflow: 'auto',
-      padding: '32px 24px',
+      padding: isMobile ? '24px 16px' : '32px 24px',
       boxSizing: 'border-box',
       /* White base with soft red/orange abstract blur */
       background: `
@@ -62,7 +64,7 @@ export function LandingPage() {
     }}>
 
       {/* ── Title ────────────────────────────────────────── */}
-      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+      <div style={{ textAlign: 'center', marginBottom: isMobile ? 20 : 32 }}>
         <h1
           onClick={() => window.location.reload()}
           style={{
@@ -89,15 +91,17 @@ export function LandingPage() {
       {/* ── Two-pane workspace ────────────────────────────── */}
       <div style={{
         display: 'flex',
-        gap: 20,
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? 16 : 20,
         alignItems: 'flex-start',
         width: '100%',
-        maxWidth: 920,
+        maxWidth: isMobile ? '100%' : 920,
       }}>
 
         {/* ── Left card: Designer ─────────────────────────── */}
         <div style={{
-          flex: '0 0 400px',
+          flex: isMobile ? '1 1 auto' : '0 0 400px',
+          width: isMobile ? '100%' : undefined,
           background: '#FFFFFF',
           borderRadius: 10,
           boxShadow: CARD_SHADOW,
