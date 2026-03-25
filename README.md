@@ -1,4 +1,4 @@
-# GenNard
+# 🎲 GenNard
 
 **AI-powered backgammon with custom-generated themes.**
 
