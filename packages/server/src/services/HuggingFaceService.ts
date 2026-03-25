@@ -13,7 +13,7 @@
 
 import { HfInference } from '@huggingface/inference';
 import { z } from 'zod';
-import type { StyleMode } from '../../../../shared/themeTypes.js';
+import type { StyleMode } from '../../../shared/themeTypes.js';
 
 // ─── Schema (mirrors LlmService.LlmThemeResponseSchema) ─────────────────────
 

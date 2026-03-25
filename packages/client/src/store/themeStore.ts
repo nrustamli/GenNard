@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { ThemeGenerationResponse, StyleMode } from '../../../../shared/themeTypes';
+import type { ThemeGenerationResponse, StyleMode } from '../../../shared/themeTypes';
 import { generateTheme } from '../services/themeApi';
 
 interface ThemeState {

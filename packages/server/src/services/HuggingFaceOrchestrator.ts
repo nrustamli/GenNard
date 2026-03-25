@@ -8,7 +8,7 @@
  * Implements the same generate() signature so it can be swapped in index.ts.
  */
 
-import type { ThemeGenerationResponse, StyleMode } from '../../../../shared/themeTypes.js';
+import type { ThemeGenerationResponse, StyleMode } from '../../../shared/themeTypes.js';
 import { HuggingFaceService } from './HuggingFaceService.js';
 import { getCacheKey, getCachedTheme, saveThemeToCache } from '../utils/imageCache.js';
 

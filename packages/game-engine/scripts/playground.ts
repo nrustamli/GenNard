@@ -8,7 +8,7 @@ import {
   gameReducer,
   getLegalMoves,
   calculatePipCount,
-} from './src/index.js';
+} from '../src/index.js';
 
 // Create a new game
 const game = createNewGame('playground');

@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 COPY packages/game-engine/package*.json ./packages/game-engine/
 COPY packages/server/package*.json       ./packages/server/
-COPY shared/package*.json                ./shared/
+COPY packages/shared/package*.json       ./packages/shared/
 
 RUN npm ci
 
@@ -15,7 +15,7 @@ COPY tsconfig.base.json ./
 
 # Build game-engine (server depends on it)
 COPY packages/game-engine ./packages/game-engine
-COPY shared               ./shared
+COPY packages/shared      ./packages/shared
 RUN npm run build -w packages/game-engine
 
 # Build server
@@ -28,7 +28,7 @@ WORKDIR /app
 
 COPY --from=builder /app/node_modules                      ./node_modules
 COPY --from=builder /app/package.json                      ./package.json
-COPY --from=builder /app/shared                            ./shared
+COPY --from=builder /app/packages/shared                    ./packages/shared
 COPY --from=builder /app/packages/game-engine/dist         ./packages/game-engine/dist
 COPY --from=builder /app/packages/game-engine/package.json ./packages/game-engine/package.json
 COPY --from=builder /app/packages/server/dist              ./packages/server/dist
@@ -38,5 +38,5 @@ COPY --from=builder /app/packages/server/package.json      ./packages/server/pac
 ENV PORT=8080
 EXPOSE 8080
 
-# rootDir is the monorepo root, so tsc mirrors the full path
-CMD ["node", "packages/server/dist/packages/server/src/index.js"]
+# rootDir is packages/, so tsc mirrors paths from there
+CMD ["node", "packages/server/dist/server/src/index.js"]

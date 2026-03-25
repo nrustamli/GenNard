@@ -1,6 +1,7 @@
 {
   "hosting": {
     "public": "packages/client/dist",
+    "//": "Serves the Vite-built client from packages/client/dist. The root public/ folder is NOT used — Firebase serves from this 'public' path. The SPA catch-all rewrite below handles client-side routing.",
     "ignore": [
       "firebase.json",
       "**/.*",

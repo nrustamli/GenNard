@@ -1,4 +1,4 @@
-import type { ThemeGenerationRequest, ThemeGenerationResponse } from '../../../../shared/themeTypes';
+import type { ThemeGenerationRequest, ThemeGenerationResponse } from '../../../shared/themeTypes';
 
 export async function generateTheme(
   request: ThemeGenerationRequest,

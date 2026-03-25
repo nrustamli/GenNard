@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "main": "./protocol.ts",
+  "main": "./themeTypes.ts",
   "exports": {
-    "./protocol": "./protocol.ts",
     "./themeTypes": "./themeTypes.ts"
   }
 }

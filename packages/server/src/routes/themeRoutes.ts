@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
-import type { ThemeGenerationResponse, StyleMode } from '../../../../shared/themeTypes.js';
+import type { ThemeGenerationResponse, StyleMode } from '../../../shared/themeTypes.js';
 
 interface IOrchestrator {
   generate(prompt: string, styleMode: StyleMode): Promise<ThemeGenerationResponse>;

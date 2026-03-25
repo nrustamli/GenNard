@@ -3,9 +3,9 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "outDir": "./dist",
-    "rootDir": "../../",
+    "rootDir": "../",
     "declaration": false,
     "declarationMap": false
   },
-  "include": ["src/**/*", "../../shared/**/*"]
+  "include": ["src/**/*", "../shared/**/*"]
 }
