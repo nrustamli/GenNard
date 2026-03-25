@@ -4,40 +4,17 @@
 
 Type words like "Moon vs Sun", or "Barbie vs Oppenheimer" and GenNard uses AI to generate unique checker textures, a board design, and a color palette — then lets you play a full game of backgammon on a 3D board with your custom theme.
 
+<p align="center">
+   <img width="600" height="400" alt="moon_vs_star_theme_example" src="https://github.com/user-attachments/assets/78e887b5-81b5-4a46-aac6-72bb103cfa74"/>
+</p>
 
-
+ 
 ## Why GenNard?
 
 - **Every game looks different** — AI generates unique visuals from any theme you describe
 - **Real backgammon** — complete game engine with legal move validation, bearing off, and win detection
 - **3D board** — interactive Three.js board with physics, not a flat 2D grid
 - **Instant caching** — generated themes are cached so repeat prompts load instantly
-
-## Quick Start
-
-```bash
-git clone https://github.com/nuranarustamli/GenNard.git
-cd GenNard
-npm install
-```
-
-Create `packages/server/.env`:
-
-```env
-HF_TOKEN=hf_your_token_here
-THEME_PROVIDER=huggingface
-```
-
-> Get a free HuggingFace token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
-
-Start both client and server:
-
-```bash
-npm run dev:client   # http://localhost:3000
-npm run dev:server   # http://localhost:4000
-```
-
-Open [http://localhost:3000](http://localhost:3000), enter a theme, and play.
 
 ## How It Works
 
@@ -113,14 +90,3 @@ gcloud builds submit --config cloudbuild.yaml
 ```
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full deployment topology and CI/CD pipeline details.
-
-## Contributing
-
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Make your changes and run `npm test`
-4. Submit a pull request
-
-## License
-
-This project is private. All rights reserved.
