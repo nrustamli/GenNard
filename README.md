@@ -57,8 +57,9 @@ GenNard/
 │   ├── server/          Express API + AI orchestration
 │   ├── game-engine/     Pure backgammon logic (tested, zero deps)
 │   └── shared/          Shared TypeScript types
+├── Architecture.md      How the app works (components, data flow, game engine)
 ├── docs/
-│   └── ARCHITECTURE.md  Detailed architecture guide
+│   └── GettingStarted.md  Setup guide for new developers
 ├── Dockerfile           Multi-stage Cloud Run image
 └── firebase.json        Hosting + API rewrite config
 ```
@@ -89,4 +90,11 @@ npm test
 gcloud builds submit --config cloudbuild.yaml
 ```
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full deployment topology and CI/CD pipeline details.
+## Documentation
+
+- [Architecture.md](Architecture.md) — how the app works: end-to-end flow, game engine internals, API, deployment, and design decisions
+- [docs/GettingStarted.md](docs/GettingStarted.md) — setup guide for developers: clone, install, configure, run, test, and deploy
+
+## License
+
+MIT
